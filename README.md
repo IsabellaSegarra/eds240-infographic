@@ -1,4 +1,4 @@
-# TITLE
+# Burrowing Owl Habitat Range 
 This repository's purpose is for the EDS 240 final project. This project was completed as part of [EDS-240 Data Visualization and Communication](https://eds-240-data-viz.github.io/) class as part of the Masters of Environmental Data Science program. 
 
 ## Contributor
