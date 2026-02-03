@@ -1,0 +1,91 @@
+---
+title: "exploration"
+format: html
+---
+
+```{r}
+#......Set up......
+library(tidyverse)
+library(tidyr)
+library(here)
+library(dplyr)
+library(terra)
+install.packages("rebird")
+library(rebird)
+library(ARTofR)
+library(janitor)
+
+#.......Import data......
+
+#......Burrowing Owl Data.....
+# Acess eBird data with API
+Sys.setenv(EBIRD_KEY = "uamc242pe2dl")
+
+burrowing_owls <- ebirdregion("US-CA", species = "burowl", back = 30)
+
+#.....Landcover Data.....
+landcover_2024 <- rast(here::here("data", "Annual_NLCD_FctImp_2024_CU_C1V1", "Annual_NLCD_FctImp_2024_CU_C1V1.tif"))
+
+#....GAP Data.....
+gap <- st_read(here::here('data',
+                          'PADUS4_1_State_CA_GDB_KMZ', 
+                          'PADUS4_1_StateCA.gdb'), 
+                          quiet = TRUE)
+
+library(readxl)
+
+micro_plastics <- read_excel(here("data/2020-09-11_microparticledata.xlsx")) %>% 
+  clean_names()
+
+plastic_pollution <- read_csv(here("data/samples_geocoded.csv")) 
+
+```
+
+```{r}
+# explore data variables
+unique(micro_plastics$matrix_name) # Will need to str_detect to split columns
+unique(micro_plastics$color)
+unique(micro_plastics$plastic_type) # Consider aggregating by plastic type 
+unique(micro_plastics$sample_matrix) # Look into metadata about this column
+unique(micro_plastics$morphological_category) # Consider grouping my morphology
+
+```
+## Data wrangling 
+```{r}
+micro_plastics_clean <- micro_plastics %>% 
+  # Separate column into two columns 
+  separate(matrix_name, 
+           into = c("matrix_type","" "size_class"), 
+           sep = ", ", 
+           extra = "merge",
+           remove = FALSE) %>% 
+  str_remove(size_class, sep = ",")
+  mutate(material_group = case_when(
+    plastic_type %in% c("Polyethylene", "Polypropylene", "Polyethylene/polypropylene copolymer",
+                           "Polystyrene", "Polystyrene/acrylic copolymer", "Styrene copolymer",
+                           "Acrylonitrile butadiene styrene", "Polyester", "Polyethylene terephthalate",
+                           "Polyethylene terephthalate/polyurethane", "Acrylic", "Polyacrolein",
+                           "Polyvinyl chloride", "Polyvinyl acetate", "Polyvinyl alcohol",
+                           "Polyvinyl butyral", "Polyvinyl ether", "Ethylene/vinyl acetate copolymer",
+                           "Methyl vinyl ether copolymers", "Polytetrafluoroethylene", "Polycaprolactone",
+                           "Polycarbonate", "Polyethylenimine", "Phenolic resin", "Polyether block amide",
+                           "Poly(Aryletherketone)", "Polyethylene co-acrylic acid") ~ "Plastics",
+    
+    plastic_type %in% c("Cotton", "Wool", "Cellulosic", "Cellulose acetate",
+                           "Anthropogenic (cellulosic)", "Nylon", "Polyurethane") ~ "Textiles",
+    
+    plastic_type %in% c("Rubber", "Silicone", "Fluoroelastomer", 
+                           "Unknown Potentially Rubber") ~ "Elastomers",
+    
+    plastic_type %in% c("Paint", "Asphalt", "Stearates, Lubricants, Waxes",
+                           "Organic natural material", "Inorganic natural material", 
+                           "Glass") ~ "Other",
+    
+    TRUE ~ "Unknown"
+  )) 
+  
+# Grouped by morphology
+
+
+```
+
