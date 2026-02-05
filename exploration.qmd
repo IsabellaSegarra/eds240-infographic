@@ -1,48 +1,60 @@
 ---
-title: "exploration"
+title: "Exploring Microplastics in the San Fransisco Bay Estuary"
+subtitle: "EDS 240 Final Project Milestone #2" 
+author: Isabella Segarra 
+date: "2/4/26"
 format: html
 ---
+## Objective
+The purpose of this `.qmd` is to explore the San Francisco Estuary Institute (SFEI)'s dataset on micro plastics. 
+
+## Background on the data
+This data comes from a regional study of micro plastic pollution of a major urban estuary and adjacent ocean environment, sampling in stormwater, treated wastewater, surface water, sediment, and prey fish in the SF Bay. 
+
+## My Question(s)
+1. What sources are depositing the most micro plastics in the SF estuary?
+2. What are the sources of plastic in the SF Bay? 
+3. Does source predict plastic type or size?
+4. Do certain combinations appear more frequently?
 
 ```{r}
+#| label: Set-Up
+#| output: false
+#| message: false 
 #......Set up......
+
 library(tidyverse)
 library(tidyr)
 library(here)
 library(dplyr)
-library(terra)
-install.packages("rebird")
-library(rebird)
 library(ARTofR)
 library(janitor)
+library(readxl)
+library(ggplot2)
+library(stringr)
 
 #.......Import data......
 
-#......Burrowing Owl Data.....
-# Acess eBird data with API
-Sys.setenv(EBIRD_KEY = "uamc242pe2dl")
-
-burrowing_owls <- ebirdregion("US-CA", species = "burowl", back = 30)
-
-#.....Landcover Data.....
-landcover_2024 <- rast(here::here("data", "Annual_NLCD_FctImp_2024_CU_C1V1", "Annual_NLCD_FctImp_2024_CU_C1V1.tif"))
-
-#....GAP Data.....
-gap <- st_read(here::here('data',
-                          'PADUS4_1_State_CA_GDB_KMZ', 
-                          'PADUS4_1_StateCA.gdb'), 
-                          quiet = TRUE)
-
-library(readxl)
-
 micro_plastics <- read_excel(here("data/2020-09-11_microparticledata.xlsx")) %>% 
-  clean_names()
+  # Change all columns to lower_snack_case 
+  clean_names() 
 
-plastic_pollution <- read_csv(here("data/samples_geocoded.csv")) 
 
 ```
 
+## Explore Data Variables 
+Variables of interest in this analysis include the following:
+- `plastic_type`: details on the type of plastic found
+- `color`: although this variable might not be relevant to my questions, it can point to the origin of the plastic and make for a nice visualization
+- `length.mm` and `width.mm`
+- `matrix_name`: this column needs to be wrangled to make the most use of it
+- `morphological_category`: what are the shapes of the plastic
+
 ```{r}
-# explore data variables
+#| label: Explore variables 
+#| output: false
+#| message: false 
+
 unique(micro_plastics$matrix_name) # Will need to str_detect to split columns
 unique(micro_plastics$color)
 unique(micro_plastics$plastic_type) # Consider aggregating by plastic type 
@@ -50,17 +62,30 @@ unique(micro_plastics$sample_matrix) # Look into metadata about this column
 unique(micro_plastics$morphological_category) # Consider grouping my morphology
 
 ```
+Data cleaning to dos:
+- remove columns I don't plan to use
+- change column names (refer to metadata)
+- learn more about the `sample_matrix` column 
+
 ## Data wrangling 
+In this step, I completed the following:
+1. `str_extract` the `matrix_name` to create two new columns `matrix_type` and `size_class`. These columns can be useful to group by later. 
+2. `case_when` the `plastic_type` column to be more generalizeable plastic types with the use of Claude AI for plastic types, which I do not know about. 
+
+There is a column `sample_id` with some rows containing time signatures, however I am not interested in plotting this data temporally, since the original study only covers a three-year period. 
 ```{r}
+#| label: Data wrangling
+#| output: false
+#| message: false 
+
 micro_plastics_clean <- micro_plastics %>% 
-  # Separate column into two columns 
-  separate(matrix_name, 
-           into = c("matrix_type","" "size_class"), 
-           sep = ", ", 
-           extra = "merge",
-           remove = FALSE) %>% 
-  str_remove(size_class, sep = ",")
-  mutate(material_group = case_when(
+  # Extract information from matrix_name
+  mutate(
+    matrix_type = str_extract(matrix_name, "^[^,]+"), # Produce matrix type column
+    size_class = str_extract(matrix_name, ">.*") # Produce size class column 
+  ) %>% 
+  # Create larger classifications for plastic type 
+  mutate(material_type = case_when(
     plastic_type %in% c("Polyethylene", "Polypropylene", "Polyethylene/polypropylene copolymer",
                            "Polystyrene", "Polystyrene/acrylic copolymer", "Styrene copolymer",
                            "Acrylonitrile butadiene styrene", "Polyester", "Polyethylene terephthalate",
@@ -82,10 +107,85 @@ micro_plastics_clean <- micro_plastics %>%
                            "Glass") ~ "Other",
     
     TRUE ~ "Unknown"
-  )) 
+  )) %>% 
+  # Create area column 
+  mutate(area_mm = length_mm * width_mm) 
   
-# Grouped by morphology
-
 
 ```
+## Exploratory visualizations
+1. Group data by material type, look at average size. 
+```{r}
+# Plot 1: 
+plot_1 <- micro_plastics_clean %>% 
+  group_by(material_type) %>% 
+  summarize(avg_area_type_mm = mean(area_mm, na.rm = TRUE)) %>% 
+  ggplot(aes(material_type, avg_area_type_mm)) +
+  geom_col() +
+  theme_minimal()
+plot_1
+```
+2. Group data by morphology, look at average size. 
+```{r}
+# Plot 2: 
+plot_2 <- micro_plastics_clean %>% 
+  group_by(morphological_category) %>% 
+  summarize(avg_area_type_mm = mean(area_mm, na.rm = TRUE)) %>% 
+  ggplot(aes(morphological_category, avg_area_type_mm)) +
+  geom_col() +
+  theme_minimal()
+
+plot_2
+```
+3. Mpst common morphology and color combinations for plastic. 
+```{r}
+plot_3 <- micro_plastics_clean %>%
+  count(morphological_category, color) %>%
+  slice_max(n, n = 10) %>%
+  mutate(plastic_combos= paste(morphological_category, color, sep = " + ")) %>%
+  ggplot(aes(y = reorder(plastic_combos, n), x = n)) +
+  geom_col()
+
+plot_3
+```
+4. Proportion of plastic colors from sample type (looks a mess, I know). 
+```{r}
+plot_4 <- micro_plastics_clean %>% 
+  ggplot(aes(x = matrix_type, fill = color)) +
+  geom_bar(position = "fill") +
+  theme_minimal()
+
+plot_4 
+
+```
+5. Proportion of material type within each sample type. 
+```{r}
+plot_5 <- micro_plastics_clean %>% 
+  filter(material_type != "Unknown") %>% 
+  ggplot(aes(x = matrix_type, fill = material_type)) +
+  geom_bar(position = "fill") +
+  theme_minimal()
+
+plot_5
+```
+6. Which sample type is most prominent in the data? 
+```{r}
+plot_6 <- micro_plastics_clean %>%
+  count(matrix_type) %>%
+  ggplot(aes(x = matrix_type, y = n)) +
+  geom_col()
+
+plot_6 
+```
+
+## Questions
+**1. What have you learned about your data? Have any potentially interesting patterns emerged? Point to specific visualizations that you created as you describe your findings.**
+As you can see in `plot_1`,  plastics have the largest area of each material type, followed by textiles and elastomers (rubber). This is interesting, but may not be relevant for the rest of my analysis. `plot_2` shows that the morphology with the largest average area is film. `plot_3` shows the ten most common combinations of morphology and color of the pieces, this shows that black fragments and clear fibers are the most common microplastic. What is interesting to me, and connects with my target questions, is `plot_5`. This looks into what materia ltypes are prominent in each sample type, showing that plastics are common across all samples, which textiles dominating in blankwater. 
+
+**2. In FPM #1, you outlined some questions that you wanted to answer using these data. Have you made any strides towards answering those questions? If yes, how so? If no, what next steps do you need to take (e.g. I need to create X plot type, I still need to track down Y data, I need to restructure existing data so that you can visualize it in Z ways, etc.)? Have any new questions emerged?**
+I have been able to answer question 4 (Do certain combinations appear more frequently?), however I can rearrange the data in many ways to see different combinations. For question 1 (what sources are depositing the most micro plastics in the SF estuary?) and 3 (Does source predict plastic type or size), I am not sure I have the relevant data to determine this. I could look for an additional dataset that links platic type to sources in order to tell a full story with the data. I definitely need to refine my questions. 
+
+
+**3. What challenges do you foresee encountering with your data? These can be data wrangling and / or visualization challenges.**
+The main challenges I anticipate involve both visualization and data wrangling decisions. For visualization, I want to color plastics by their actual observed color while considering colorblindness, and I need to find effective ways to display categorical data beyond bar plots. On the data wrangling side, I'm uncertain about how to handle the "unknown" plastic type entries, whether to exclude them like I did in `plot_5` or treat them as a separate category as they are. I also need to determine the best approach for utilizing the size class column, and whether converting any categorical variables to numerical formats would improve my analysis. I am open to lots of feedback and suggestions! 
 
