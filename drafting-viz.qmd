@@ -1,0 +1,20 @@
+---
+title: "Drafting Visualizations: Microplastics in the San Fransisco Bay Estuary"
+subtitle: "EDS 240 Final Project Milestone #3" 
+author: Isabella Segarra 
+date: "2/22/26"
+format: html
+---
+## Objective 
+
+**1. Restate the questions you hope to answer with your infographic. This should include one overarching question (think of this as driving the overall theme of your infographic) and at least three subquestions (each of which will be addressed by your infographic’s component visualizations). Have these questions changed at all since FPM #1? If yes, how so?**
+
+
+**2. Explain which variables from your data set(s) you will use to answer the above questions, and how.**
+
+**3. In FPM #2, you created some exploratory data viz to better understand your data. You may already have some ideas of how you plan to formally visualize your data, but it’s incredibly helpful to look at visualizations by other creators for inspiration. Find at least two data visualizations that you could (potentially) borrow / adapt pieces from. Download and embed them into your `drafting-viz.qmd` file, and explain which elements you might borrow (e.g. the graphic form, legend design, layout, etc.).**
+
+```{r}
+
+```
+
