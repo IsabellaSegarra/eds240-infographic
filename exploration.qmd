@@ -59,7 +59,9 @@ unique(micro_plastics$matrix_name) # Will need to str_detect to split columns
 unique(micro_plastics$color)
 unique(micro_plastics$plastic_type) # Consider aggregating by plastic type 
 unique(micro_plastics$sample_matrix) # Look into metadata about this column
+# sw = surface water, fish = fish, 
 unique(micro_plastics$morphological_category) # Consider grouping my morphology
+unique(micro_plastics$sample_id)
 
 ```
 Data cleaning to dos:
@@ -113,6 +115,7 @@ micro_plastics_clean <- micro_plastics %>%
   
 
 ```
+
 ## Exploratory visualizations
 1. Group data by material type, look at average size. 
 ```{r}
