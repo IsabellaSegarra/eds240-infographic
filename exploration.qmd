@@ -32,6 +32,7 @@ library(janitor)
 library(readxl)
 library(ggplot2)
 library(stringr)
+library(ggmosaic)
 
 #.......Import data......
 
@@ -117,6 +118,31 @@ micro_plastics_clean <- micro_plastics %>%
 ```
 
 ## Exploratory visualizations
+
+```{r}
+morphology_pal <- c(
+  "Fiber"        = "#4E79A7",
+  "Fiber Bundle" = "#76B7B2",
+  "Fragment"     = "#B07AA1",
+  "Foam"         = "#F28E2B",
+  "Film"         = "#59A14F",
+  "Sphere"       = "#E15759" 
+)
+
+micro_plastics_clean %>%
+  filter(sample_medium != "blankwater") %>%
+  filter(!is.na(morphological_category), !is.na(sample_medium)) %>%
+  ggplot() +
+  geom_mosaic(aes(x = product(sample_medium), fill = morphological_category), offset = 0.015) +
+  scale_fill_manual(values = morphology_pal) +
+  labs(x = "Source", y = NULL, fill = "Plastic\nMorphology",
+       title = "Common plastic morphologies within the San Francisco Bay Estuary",
+       subtitle = "") +
+  theme_void() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_blank())
+```
+
 1. Group data by material type, look at average size. 
 ```{r}
 # Plot 1: 
@@ -180,6 +206,11 @@ plot_6 <- micro_plastics_clean %>%
 
 plot_6 
 ```
+
+```{r}
+
+```
+
 
 ## Questions
 **1. What have you learned about your data? Have any potentially interesting patterns emerged? Point to specific visualizations that you created as you describe your findings.**

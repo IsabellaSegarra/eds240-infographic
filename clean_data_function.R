@@ -11,8 +11,8 @@ clean_microplastics <- function(data) {
         size_class %in% c(">1000 um", ">1 mm")                                                         ~ ">1000 um",
         TRUE ~ NA_character_
       ),
-      # Create larger classifications for plastic type
-      material_type = case_when(
+      # Larger classification of plastic type
+      material_type_large = case_when(
         plastic_type %in% c("Polyethylene", "Polypropylene", "Polyethylene/polypropylene copolymer",
                             "Polystyrene", "Polystyrene/acrylic copolymer", "Styrene copolymer",
                             "Acrylonitrile butadiene styrene", "Polyester", "Polyethylene terephthalate",
@@ -21,7 +21,7 @@ clean_microplastics <- function(data) {
                             "Polyvinyl butyral", "Polyvinyl ether", "Ethylene/vinyl acetate copolymer",
                             "Methyl vinyl ether copolymers", "Polytetrafluoroethylene", "Polycaprolactone",
                             "Polycarbonate", "Polyethylenimine", "Phenolic resin", "Polyether block amide",
-                            "Poly(Aryletherketone)", "Polyethylene co-acrylic acid") ~ "Synthetic\nPolymers",
+                            "Poly(Aryletherketone)", "Polyethylene co-acrylic acid") ~ "Plastics",
         plastic_type %in% c("Cotton", "Wool", "Cellulosic", "Cellulose acetate",
                             "Anthropogenic (cellulosic)", "Nylon", "Polyurethane") ~ "Textiles",
         plastic_type %in% c("Rubber", "Silicone", "Fluoroelastomer",
@@ -29,7 +29,50 @@ clean_microplastics <- function(data) {
         plastic_type %in% c("Paint", "Asphalt", "Stearates, Lubricants, Waxes",
                             "Organic natural material", "Inorganic natural material",
                             "Glass") ~ "Other",
-        TRUE ~ "Unknown"
+        TRUE ~ "Unidentified"
+      ),
+      # Refined classificaiton of plastic type
+      material_type_refined = case_when(
+        plastic_type %in% c(
+          "Polyethylene", "Polypropylene", "Polyethylene/polypropylene copolymer",
+          "Polystyrene", "Polyethylene terephthalate", "Polyvinyl chloride",
+          "Polycarbonate", "Acrylonitrile butadiene styrene", "Polycaprolactone"
+        ) ~ "Common Synthetic Plastics",
+
+        plastic_type %in% c(
+          "Polyester", "Nylon", "Acrylic", "Polyurethane",
+          "Polystyrene/acrylic copolymer"
+        ) ~ "Synthetic Fibers & Textiles",
+
+        plastic_type %in% c(
+          "Polytetrafluoroethylene", "Polyether block amide", "Poly(Aryletherketone)",
+          "Polyvinyl butyral", "Fluoroelastomer", "Ethylene/vinyl acetate copolymer",
+          "Polyethylene terephthalate/polyurethane", "Polyethylene co-acrylic acid",
+          "Methyl vinyl ether copolymers", "Polyacrolein", "Polyethylenimine",
+          "Polyvinyl ether", "Phenolic resin"
+        ) ~ "Industrial & Specialty Polymers",
+
+        plastic_type %in% c(
+          "Polyvinyl acetate", "Polyvinyl alcohol", "Cellulose acetate",
+          "Paint", "Stearates, Lubricants, Waxes", "Silicone", "Asphalt"
+        ) ~ "Other",
+
+        plastic_type %in% c(
+          "Cotton", "Wool", "Cellulosic", "Organic natural material",
+          "Inorganic natural material"
+        ) ~ "Natural Materials",
+
+        plastic_type %in% c(
+          "Rubber", "Unknown Potentially Rubber"
+        ) ~ "Rubber",
+
+        plastic_type %in% c(
+          "Anthropogenic (cellulosic)", "Anthropogenic (protein base)",
+          "Anthropogenic (synthetic)", "Anthropogenic (unknown base)",
+          "Glass", "Not Characterized", "Unknown", "Styrene copolymer"
+        ) ~ "Unidentified plastic",
+
+        .default = "Uncategorized"
       ),
       # Create plastic origin
       polymer_origin = case_when(
@@ -49,52 +92,22 @@ clean_microplastics <- function(data) {
         plastic_type %in% c("Cotton", "Wool", "Cellulosic",
                             "Organic natural material", "Inorganic natural material") ~ "Natural",
         plastic_type %in% c("Paint", "Asphalt", "Stearates, Lubricants, Waxes", "Glass") ~ "Non-polymer Anthropogenic",
-        TRUE ~ "Unknown"
+        TRUE ~ "Unidentifed"
       ),
       # Create area column
       area_mm = length_mm * width_mm
     ) %>%
-    rename(sample_medium = matrix_type)
+    # Rename matrix type
+    rename(sample_medium = matrix_type) %>%
+    # Filter out blankwater
+    filter(sample_medium != "blankwater") %>%
+    # Rename categories
+    mutate(sample_medium = case_when(
+      sample_medium == "samplewater" ~ "Water",
+      sample_medium == "effluent"    ~ "Wastewater",
+      sample_medium == "tissue"      ~ "Fish",
+      sample_medium == "runoff" ~ "Runoff",
+      sample_medium == "sediment" ~ "Sediment",
+      .default = sample_medium))
 }
 
-# select certain columns (keeep sample_medium, remove sample matrix its the same thing
-# remove blank water from the dataset
-# change tissue = fish
-
-# Potential updated. categories:
-
-library(dplyr)
-
-df <- df %>%
-  mutate(category = case_when(
-    material %in% c("Polyethylene", "Polypropylene", "Polyethylene/polypropylene copolymer",
-                    "Polystyrene", "Polystyrene/acrylic copolymer", "Polyethylene terephthalate",
-                    "Acrylonitrile butadiene styrene", "Polycarbonate",
-                    "Polyvinyl chloride") ~ "Commodity Plastics",
-
-    material %in% c("Polyester", "Nylon", "Acrylic", "Polyurethane",
-                    "Polyether block amide", "Polyethylene terephthalate/polyurethane") ~ "Synthetic Fibers & Textiles",
-
-    material %in% c("Rubber", "Unknown Potentially Rubber", "Asphalt",
-                    "Styrene copolymer") ~ "Tire & Road Wear",
-
-    material %in% c("Paint", "Polytetrafluoroethylene", "Silicone", "Fluoroelastomer",
-                    "Phenolic resin", "Poly(Aryletherketone)", "Polycaprolactone",
-                    "Polyvinyl butyral", "Polyvinyl acetate", "Polyvinyl alcohol",
-                    "Ethylene/vinyl acetate copolymer", "Polyethylene co-acrylic acid",
-                    "Polyethylenimine", "Methyl vinyl ether copolymers",
-                    "Polyvinyl ether", "Polyacrolein") ~ "Coatings & Industrial",
-
-    material %in% c("Cellulose acetate", "Anthropogenic (cellulosic)",
-                    "Anthropogenic (protein base)", "Anthropogenic (synthetic)",
-                    "Anthropogenic (unknown base)") ~ "Cellulosic & Anthropogenic",
-
-    material %in% c("Cotton", "Wool", "Cellulosic", "Organic natural material",
-                    "Inorganic natural material", "Glass") ~ "Natural Materials",
-
-    material %in% c("Stearates, Lubricants, Waxes") ~ "Stearates & Waxes",
-
-    material %in% c("Not Characterized", "Unknown", "Unknown Potentially Rubber") ~ "Uncharacterized",
-
-    TRUE ~ "Other"
-  ))
