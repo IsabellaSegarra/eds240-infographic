@@ -9,10 +9,15 @@ This repository's purpose is for the EDS 240 final project. This project was com
 ## Repository Structure 
 This repository contains the following structure: 
 ```
+.
+├── clean_data_function.R
 ├── data
-│   └── 2020-09-11_microparticledata.xlsx
+├── drafting-viz.qmd
 ├── eds240-infographic.Rproj
-├── exploration.qmd 
+├── exploration.qmd
+├── final_viz.qmd
+├── images
+├── plots
 └── README.md
 ```
 ## Data Access
