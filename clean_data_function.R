@@ -1,7 +1,10 @@
+#' Clean Data Function
+#'This function is for cleaning the dataset for this analysis.
+#' @param data: The one and only '2020-09-11_microparticledata.xlsx'.
+#' @returns cleaned data!
 
 clean_microplastics <- function(data) {
   data %>%
-    # Extract information from matrix_name
     mutate(
       matrix_type = str_extract(matrix_name, "^[^,]+"), # Produce matrix type column
       size_class = str_extract(matrix_name, ">.*"), # Produce size class column
