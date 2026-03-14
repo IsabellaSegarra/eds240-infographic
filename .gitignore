@@ -7,6 +7,9 @@
 # Ignore data folder
 data/
 
+# Ignore exploration file
+exploration.qmd
+
 # History files
 .Rhistory
 .Rapp.history
