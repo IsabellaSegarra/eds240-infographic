@@ -10,6 +10,9 @@ data/
 # Ignore exploration file
 exploration.qmd
 
+# Ignore drafting vizfile
+drafting-viz.qmd
+
 # History files
 .Rhistory
 .Rapp.history
