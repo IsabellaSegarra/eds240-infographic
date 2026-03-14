@@ -18,8 +18,8 @@ This repository contains the following structure:
 ├── plots
 └── README.md
 ```
-- The files `drafting-vz.qmd` and `exploration.qmd` have been added to the gitignore
-- All code to replicate the analysis is within the `final_viz.qmd`
+- The files `drafting-vz.qmd` and `exploration.qmd` have been added to the gitignore, these contain the explorationg and drafting of my final visualizations. 
+- All code to replicate the analysis is within the `final_viz.qmd`. 
 - The function to clean the data is called `clean_data_function.R`. 
 
 ## Data Access
