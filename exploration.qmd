@@ -166,7 +166,7 @@ plot_2 <- micro_plastics_clean %>%
 
 plot_2
 ```
-3. Mpst common morphology and color combinations for plastic. 
+3. Most common morphology and color combinations for plastic. 
 ```{r}
 plot_3 <- micro_plastics_clean %>%
   count(morphological_category, color) %>%

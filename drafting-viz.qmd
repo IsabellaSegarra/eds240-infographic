@@ -21,7 +21,8 @@ format: html
 
 **3. In FPM #2, you created some exploratory data viz to better understand your data. You may already have some ideas of how you plan to formally visualize your data, but it’s incredibly helpful to look at visualizations by other creators for inspiration. Find at least two data visualizations that you could (potentially) borrow / adapt pieces from. Download and embed them into your `drafting-viz.qmd` file, and explain which elements you might borrow (e.g. the graphic form, legend design, layout, etc.).**
 
-![](images/clean_data_function.png) Elements I plan to use: 
+![](images/clean_data_function.png) 
+Elements I plan to use: 
 * I like the background color (#002d3d) 
 * I like how the text is the legend, this it an intuitive way to understand the graph and can be easy for the general public to interpret. 
 
@@ -29,7 +30,7 @@ format: html
 * I like how the alluvial graph has three distinct sections with questions at each stratum. 
 * I plan to use the questions and add another stratum to my alluvial plot.
 
-# 4. Hand draw visualizations
+# 4. Hand drawn visualizations
 
 ![Hand drawing of alluvial graph](images/alluvial_graph_drawing.png) 
 ![Hand drawing of polar chart](images/colors_graph_drawing.png)
@@ -548,7 +549,6 @@ fish_bubble_plot <- micro_plastics_clean %>%
 fish_bubble_plot
 
 # Save plot 
-
 
 fish_pct_plot <- micro_plastics_clean %>%
   filter(sample_medium == "Fish", !is.na(material_type_refined),
