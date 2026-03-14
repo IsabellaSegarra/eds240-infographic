@@ -1,10 +1,34 @@
 ---
-title: "Final Graphs for Infographic"
-subtitle: "EDS 240 Final Project" 
+title: "Visualizing Microplastics"
+subtitle: "EDS 240 Final Project Graphs" 
 author: Isabella Segarra 
 date: "3/13/26"
 format: html
 ---
+
+## Microplastics in the San Francisco Bay Estuary
+
+This analysis utilizes data from San Francisco Estuary Institute (SEFI) regional study of microplastic pollution of a major urban estuary and adjacent ocean environment, sampling in stormwater, treated wastewater, surface water, sediment, and prey fish. In this document is the final versions of my visualizations for the EDS 240 Infographic.
+
+## My questions
+
+I am asking the following questions with my data:
+
++------------------------------------------------------------------+------------------------------------------------------------------------------+
+| Overarching Question                                             | What are the sources and composition of microplastics in the SF Bay Estuary? |
++==================================================================+==============================================================================+
+| **Question**                                                     | **Variables Used**                                                           |
++------------------------------------------------------------------+------------------------------------------------------------------------------+
+| What types of plastic dominate in each source?                   | `sample_medium` × `plastic_type_refined`                                     |
++------------------------------------------------------------------+------------------------------------------------------------------------------+
+| What is the size distribution of particles across plastic types? | `plastic_type` × `area (mm²)`                                                |
++------------------------------------------------------------------+------------------------------------------------------------------------------+
+| What plastic types are found in fish tissue?                     | `` `sample_medium` `` × `plastic_type_refined`                               |
++------------------------------------------------------------------+------------------------------------------------------------------------------+
+| What sampling environments had the most microplastics?           | `sample_medium`                                                              |
++------------------------------------------------------------------+------------------------------------------------------------------------------+
+| What are the dominant colors of plastic?                         | `color`                                                                      |
++------------------------------------------------------------------+------------------------------------------------------------------------------+
 
 ```{r}
 #| eval: false
@@ -73,6 +97,7 @@ showtext_auto(enable = TRUE)
 ```
 
 ## What plastic types dominate in each sampling environment?
+
 ```{r}
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -138,7 +163,8 @@ ggsave(here("plots", "alluvial.png"),
 
 ```
 
-## What are the top plastics found in each sampling medium? 
+## What are the top plastics found in each sampling medium?
+
 ```{r}
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -192,7 +218,9 @@ ggsave(here("plots", "top_plastics_plot.png"), top_plastics_plot)
 
 
 ```
+
 ## What percentage of each plastic end up in fish tissue?
+
 ```{r}
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -244,7 +272,9 @@ ggsave(here("plots", "fish_pct_plot.pdf"), fish_pct_plot,
 # Save plot as png 
 ggsave(here("plots", "fish_pct_plot.png"), fish_pct_plot)
 ```
+
 ## How much plastic was found in each sampling environment?
+
 ```{r}
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -297,7 +327,9 @@ ggsave(here("plots", "bar_chart.pdf"),total_n_plastics,
 
 ggsave(here("plots", "bar_chart.png"), total_n_plastics)
 ```
-## What is the size distribution of plastics by plastic type? 
+
+## What is the size distribution of plastics by plastic type?
+
 ```{r}
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -350,8 +382,8 @@ ggsave(here("plots", "bar_chart.pdf"),total_n_plastics,
 ggsave(here("plots", "bar_chart.png"), total_n_plastics)
 
 ```
+
 ```{r}
 # Turn off showtext
 showtext_auto(enable = FALSE)
 ```
-

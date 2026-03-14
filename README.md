@@ -12,14 +12,16 @@ This repository contains the following structure:
 .
 ├── clean_data_function.R
 ├── data
-├── drafting-viz.qmd
 ├── eds240-infographic.Rproj
-├── exploration.qmd
 ├── final_viz.qmd
 ├── images
 ├── plots
 └── README.md
 ```
+- The files `drafting-vz.qmd` and `exploration.qmd` have been added to the gitignore
+- All code to replicate the analysis is within the `final_viz.qmd`
+- The function to clean the data is called `clean_data_function.R`. 
+
 ## Data Access
 Data for this project was accessed  through the [California Natural Resources Agency](https://data.cnra.ca.gov/dataset/microplastic-sf-bay) which contains the excel file with data and associated metadata. 
 
